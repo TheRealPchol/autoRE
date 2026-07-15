@@ -6,7 +6,7 @@ import platform
 import os
 import time
 from pyterappeng.core import get_key
-import src.ph as ph
+from runph import runph as runph
 import asyncio
 
 def ranger():
@@ -38,7 +38,7 @@ def main():
                     print("\nExiting...")
                     sys.exit()
                 if key == '1':
-                    asyncio.run(ph.main.auth())
+                    runph()
                     show_menu()
                 if key == '2':
                     shell()
