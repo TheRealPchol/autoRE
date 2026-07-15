@@ -1,0 +1,21 @@
+# Core
+pygame
+py-cpuinfo
+psutil
+py7zr
+rarfile
+pyterappeng
+keyboard
+urwid
+Pillow
+
+# kaa editor
+curses_ex
+pyjf3
+setproctitle
+GitPython
+kaadbg
+
+# Optional
+# pyenchant  # kaa spell checker
+# argcomplete  # patool tab completion
