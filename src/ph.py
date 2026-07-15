@@ -26,9 +26,9 @@ version = '26.7.2'
 maindir = os.getcwd()
 
 # Глобальные флаги
-onefile = False
-autostart_mode = False
-nosounds = False
+onefile = True
+autostart_mode = True
+nosounds = True
 
 
 def resource_path(relative_path):
@@ -130,8 +130,6 @@ class shell():
         except KeyboardInterrupt:
             pass
 
-    @staticmethod
-    @staticmethod
     @staticmethod
     async def phpm():
         """Менеджер пакетов PcholHelper (поддержка .phpmf как 7z)"""
@@ -419,18 +417,7 @@ class shell():
 
     @staticmethod
     def write_log(log_text: str = 'writed in the logs without text'):
-        """Write log entry to log file. Пропускает запись в режиме автостарта для скорости."""
-        # Вывод логов в консоль, если включен режим отладки
-        if shell.debug:
-            print(f"\033[1;36m[DEBUG {shell.get_time_and_date()}] {log_text}\033[0m")
-            
-        if onefile or autostart_mode:
-            return
-        try:
-            with open('lastles.log', 'a') as log_file:
-                log_file.write(f'[{shell.get_time_and_date()}]: {log_text}\n')
-        except Exception as e:
-            print(f"Error writing to log: {e}")
+        pass
 
     @staticmethod
     async def informer():
@@ -782,6 +769,8 @@ class shell():
             elif cmd == 'playsound':
                 if len(com) > 1:
                     shell.playsound(com[1])
+            elif cmd == 'exit':
+                sys.exit()
             elif cmd == 'phpm':
                 shell.phpm
             else:
@@ -819,18 +808,7 @@ class main:
 
     @staticmethod
     def init_files():
-        """Инициализация необходимых файлов (только если не onefile)."""
-        if onefile:
-            return
-        if not os.path.exists('autostart.phs'):
-            shell.write_log("Creating autostart.phs file")
-            with open('autostart.phs', 'x'):
-                pass
-
-        if not os.path.exists('aliases.7z'):
-            shell.write_log("Creating aliases.7z file")
-            with open('aliases.7z', 'x'):
-                pass
+        pass
 
     @staticmethod
     async def shell_loop():
@@ -876,13 +854,17 @@ class main:
                 shell.write_log("Exiting shell...")
                 break
 
-            if coman == 'mod menu':
-                sa = await loop.run_in_executor(None, input, 'mod name\n>>> ')
-                sa = sa.strip()
-                if sa:
-                    await shell.start_phs(sa)
-            elif coman:
-                await shell.command(coman)
+            try:
+                if coman == 'mod menu':
+                    sa = await loop.run_in_executor(None, input, 'mod name\n>>> ')
+                    sa = sa.strip()
+                    if sa:
+                        await shell.start_phs(sa)
+                elif coman:
+                    await shell.command(coman)
+            except SystemExit:
+                print("\nExiting shell...")
+                break
 
     @staticmethod
     async def login():

@@ -11,7 +11,10 @@ import asyncio
 
 def ranger():
     script = os.path.join(os.path.dirname(__file__), 'src', 'ranger', 'ranger.py')
-    subprocess.run([sys.executable, '-O', script])
+    try:
+        subprocess.run([sys.executable, '-O', script])
+    except Exception:
+        pass
 
 def start_bpytop():
     # Формируем правильный путь к файлу bpytop.py
@@ -27,33 +30,40 @@ def show_menu():
     clear_screen()
     print('\033[1mWelcome to Pchol autoRE version')
     # Добавлено визуальное отображение пункта 5 в меню
-    print('Select action:\n0. exit\n1. Enter pcholshell 26.7.1\n2. Enter system shell\n3. Enter to ranger(file manager)\n4. Enter to Pchol autoRE file manager\n5. Enter to bpytop\033[0m')
+    print('Select action:\n0. exit\n1. Enter pcholhelper (pcholshell) 26.7.2\n2. Enter system shell\n3. Enter to ranger(file manager)\n4. Enter to Pchol autoRE file manager\n5. Enter to bpytop\033[0m')
 
 def main(): 
         show_menu()
         while True:
             try:
                 key = get_key()
+            except KeyboardInterrupt:
+                show_menu()
+                continue
+            except Exception:
+                os.system('stty sane 2>/dev/null')
+                show_menu()
+                continue
+
+            try:
                 if key == '0':
                     print("\nExiting...")
+                    clear_screen()
                     sys.exit()
                 if key == '1':
                     runph()
-                    show_menu()
-                if key == '2':
+                elif key == '2':
                     shell()
-                    show_menu()
-                if key == '3':
+                elif key == '3':
                     ranger()
-                    show_menu()
-                if key == '4':
+                elif key == '4':
                     autorefm()
-                    show_menu()
-                if key == '5':
+                elif key == '5':
                     start_bpytop()
-                    show_menu() # Возвращаем меню после выхода из bpytop
-            except KeyboardInterrupt:
-                pass
+            except Exception:
+                os.system('stty sane 2>/dev/null')
+
+            show_menu()
 
 if __name__ == '__main__':
     main()

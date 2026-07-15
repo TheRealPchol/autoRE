@@ -7,6 +7,8 @@ def shell():
             if keyboard.is_pressed('f10'):
                 break
             how = input('>>>')
+            if how == "exit" or how == "quit":
+                break
             if how == "LICENSE":
                 print('The license Pchol AutoRE is GNU GPL v3')
             else:
