@@ -9,7 +9,6 @@ import sys
 import asyncio
 
 # Ленивые импорты - загружаем только когда нужны
-end = True
 pygame = None
 cpuinfo = None
 psutil = None
@@ -23,13 +22,13 @@ try:
 except ImportError:
     core = None
 
-version = 'autoRE pcholhelper build from 26.7.1'
+version = '26.7.2'
 maindir = os.getcwd()
 
 # Глобальные флаги
-onefile = True
+onefile = False
 autostart_mode = False
-nosounds = True
+nosounds = False
 
 
 def resource_path(relative_path):
@@ -103,7 +102,7 @@ class shell():
         'rd', 'wr', 'rm', 'mkd', 'rmd', '!', 'exec', 'time',
         'clock', 'phs', 'api', 'tsl', 'tsk', 'cp', 'user',
         'alias', 'chlen', 'mod', 'whoami', 'pwd', 'playsound',
-        'phinstall', 'zip', 'mv', 'sysinfo', 'phpm', 'help', 'exit'
+        'phinstall', 'zip', 'mv', 'sysinfo', 'phpm'
     ]
     @staticmethod
     async def ph_install():
@@ -605,59 +604,12 @@ class shell():
                 await shell.ph_install()
             elif cmd == 'pass':
                 pass
-            elif cmd == 'help':
-                print("""\033[1;36m=== PcholHelper Commands ===\033[0m
-  \033[1mGeneral:\033[0m
-    help        - Show this help
-    echo [text] - Print text
-    clear       - Clear screen
-    pass        - Do nothing
-    exec [code] - Execute Python code
-    ! [cmd]     - Run system command
-    time/clock  - Show current time
-
-  \033[1mFilesystem:\033[0m
-    ls [dir]    - List directory
-    cd [dir]    - Change directory
-    pwd         - Print working directory
-    rd [file]   - Read file
-    wr [file]   - Write to file
-    cp [src] [dst] - Copy file
-    mv [src] [dst] - Move/rename
-    rm [pattern] - Remove files
-    mkd [dir]   - Create directory
-    rmd [dir]   - Remove directory
-
-  \033[1mArchives:\033[0m
-    zip [fmt] zip [src] [out]   - Create archive (7z/zip/tar)
-    zip [fmt] unzip [arc] [out] - Extract archive
-
-  \033[1mSystem:\033[0m
-    sysinfo     - Show system information
-    whoami      - Show current user
-    user create - Register new user
-    tsl         - List processes
-    tsk [name]  - Kill process
-    perup       - Grant root privileges
-    perdown     - Revoke root privileges
-
-  \033[1mPcholHelper:\033[0m
-    phs [file]  - Run .phs script
-    mod [file]  - Run .phs script
-    phpm        - Package manager
-    phinstall   - Install PcholHelper
-    alias list  - Show aliases
-    alias new [n] [cmd] - Create alias
-    playsound [file] - Play sound file""")
             elif cmd == 'echo':
                 if len(com) > 1:
                     output = ' '.join(com[1:])
                     print(output)
                 else:
                     print()
-            elif cmd == 'exit':
-                global end
-                end = False
             elif cmd == 'phpm':
                 await shell.phpm()
             elif cmd == 'cd':
@@ -862,8 +814,8 @@ class shell():
 
 class main:
     username = 'root'
-    pcname = 'pc'
-    root = False
+    pcname = 'autoRE'
+    root = True
 
     @staticmethod
     def init_files():
@@ -883,7 +835,6 @@ class main:
     @staticmethod
     async def shell_loop():
         """Main shell loop."""
-        global end
         shell.write_log("Starting shell loop")
         
         if not onefile:
@@ -891,7 +842,7 @@ class main:
 
         loop = asyncio.get_running_loop()
 
-        while end:
+        while True:
             if not onefile and os.path.exists('config.7z'):
                 try:
                     with open('config.7z', 'r', encoding='utf-8') as s:
@@ -925,11 +876,7 @@ class main:
                 shell.write_log("Exiting shell...")
                 break
 
-            if coman == 'exit':
-                print("Exiting shell...")
-                shell.write_log("Exiting shell")
-                end = False
-            elif coman == 'mod menu':
+            if coman == 'mod menu':
                 sa = await loop.run_in_executor(None, input, 'mod name\n>>> ')
                 sa = sa.strip()
                 if sa:
@@ -1067,6 +1014,10 @@ class sysi():
 
 # ===================== MAIN =====================
 if __name__ == "__main__":
+    nosounds = True
+    onefile = True
+    main.root = True
+    main.shell_loop()
     # 1. Парсим аргументы командной строки
     autostart_command = None
     autostart_exit = False
