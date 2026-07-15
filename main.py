@@ -1,5 +1,6 @@
 from src.autoReFM import start as autorefm
 from src.shell import shell
+from src.exeTracker import EXETracker
 import sys
 import subprocess
 import platform
@@ -17,10 +18,26 @@ def ranger():
         pass
 
 def start_bpytop():
-    # Формируем правильный путь к файлу bpytop.py
     script = os.path.join(os.path.dirname(__file__), 'src', 'bpytop', 'bpytop.py')
-    # Запускаем в отдельном изолированном процессе со своим потоком stdin
     subprocess.run([sys.executable, script])
+
+def start_exe_tracker():
+    print(f'\033[44;97m{"="*60}\033[0m')
+    print(f'\033[1m  🕵️ exeTracker — введите путь к .exe файлу\033[0m')
+    print(f'\033[44;97m{"="*60}\033[0m\n')
+    path = input('  Путь к EXE: ').strip().strip('"\'')
+    if not path:
+        return
+    timeout_str = input('  Тайм-аут в секундах (Enter = без лимита): ').strip()
+    timeout = int(timeout_str) if timeout_str.isdigit() else None
+    print()
+    tracker = EXETracker(path, timeout=timeout)
+    tracker.run()
+    input('\n  Нажми Enter для возврата в меню...')
+
+def start_regedit():
+    from src.regedit import start as regedit_start
+    regedit_start()
 
 def clear_screen():
     command = 'cls' if platform.system().lower() == 'windows' else 'clear'
@@ -29,8 +46,7 @@ def clear_screen():
 def show_menu():
     clear_screen()
     print('\033[1mWelcome to Pchol autoRE version')
-    # Добавлено визуальное отображение пункта 5 в меню
-    print('Select action:\n0. exit\n1. Enter pcholhelper (pcholshell) 26.7.2\n2. Enter system shell\n3. Enter to ranger(file manager)\n4. Enter to Pchol autoRE file manager\n5. Enter to bpytop\033[0m')
+    print('Select action:\n0. exit\n1. PcholShell\n2. System shell\n3. Ranger\n4. autoRE File Manager\n5. Bpytop\n6. exeTracker — трекер .exe\n7. Registry Editor — редактор реестра\033[0m')
 
 def main(): 
         show_menu()
@@ -60,10 +76,32 @@ def main():
                     autorefm()
                 elif key == '5':
                     start_bpytop()
-            except Exception:
+                elif key == '6':
+                    start_exe_tracker()
+                elif key == '7':
+                    start_regedit()
+            except Exception as e:
                 os.system('stty sane 2>/dev/null')
 
             show_menu()
 
 if __name__ == '__main__':
-    main()
+    import argparse
+    parser = argparse.ArgumentParser(description='autoRE — Multi-Tool Console System')
+    parser.add_argument('--regedit', action='store_true', help='Launch Registry Editor directly')
+    parser.add_argument('--tracker', metavar='EXE_PATH', help='Launch exeTracker with given file')
+    parser.add_argument('--rangeredit', action='store_true', help='Launch autoRE File Manager directly')
+    parser.add_argument('--shell', action='store_true', help='Launch System Shell directly')
+    args, _ = parser.parse_known_args()
+
+    if args.regedit:
+        start_regedit()
+    elif args.tracker:
+        tracker = EXETracker(args.tracker)
+        tracker.run()
+    elif args.rangeredit:
+        autorefm()
+    elif args.shell:
+        shell()
+    else:
+        main()
